@@ -27,7 +27,6 @@ class ReservationForm extends Component {
     }
 
     handleInput = (key, value) => {
-
         // setState is not about OVERWRITING
         // it's about MERGING
 
@@ -39,17 +38,55 @@ class ReservationForm extends Component {
                 [key]: value
             }
         })
+    }
 
+    submitReservation = async (e) => {
+        e.preventDefault()
+        console.log(this.state.reservation)
+        // now let's send this reservation object to the API
+        try {
+            let response = await fetch("https://striveschool-api.herokuapp.com/api/reservation", {
+                method: 'POST',
+                body: JSON.stringify(this.state.reservation),
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Authorization if you have it
+                }
+            })
+            if (response.ok) {
+                // if we fall here
+                // everything went well!
+                alert('RESERVATION SAVED!')
+                this.setState({
+                    reservation: {
+                        name: '',
+                        phone: '',
+                        numberOfPeople: 1,
+                        smoking: false,
+                        dateTime: '',
+                        specialRequests: '',
+                    },
+                })
+            } else {
+                // we fall here if an error occurred from the server
+                // 400
+                // 401
+                // 500
+                alert('SOMETHING WENT WRONG ON THE SERVER')
+            }
+        } catch (error) {
+            // generic error section
+            console.log(error)
+        }
     }
 
     render() {
-
         return (
             <Container>
                 <Row className="justify-content-center my-5">
                     <Col xs={12} md={6} className="text-center">
                         <h2>Book your table NOW!</h2>
-                        <Form>
+                        <Form onSubmit={this.submitReservation}>
                             {/* every Form.Group in react bootstrap is input field */}
                             <Form.Group>
                                 <Form.Label>Your name</Form.Label>
@@ -128,7 +165,7 @@ class ReservationForm extends Component {
                                     onChange={(e) => this.handleInput('specialRequests', e.target.value)} />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit">
+                            <Button variant="success" type="submit">
                                 Save reservation
                             </Button>
                         </Form>
